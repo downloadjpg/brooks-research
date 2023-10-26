@@ -36,7 +36,7 @@ def main():
             foals.append(Foal(name, birthday, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year))
 
     print("writing file...")
-    file = open('output.csv', 'w', newline='')
+    file = open('output/output.csv', 'w', newline='')
     writer = csv.writer(file)
     for foal in foals:
         row = [foal.name, foal.birthday, foal.sex, foal.dam, foal.dam_year, foal.dam_spr, foal.dam_cpi, foal.dam_sire, foal.dam_sire_year]
