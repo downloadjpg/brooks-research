@@ -19,7 +19,7 @@ We are only sampling from horses with 3 or more starts.
 
 # Current Status:
 - Trying to capture every single foal, no matter the race count. Currently at **1,314** total rows.
-- This means approximately **5%** of entries are being lost, though I forget what the exact total count is.  
+- This means approximately **5%** of entries are being lost, though I forget what the exact total count is.
 
 ## Fields captured: (! = known issue)
 - Name (!)
@@ -42,3 +42,10 @@ We are only sampling from horses with 3 or more starts.
 ## Known Issues:
 - Many foals contain a country tag, e.g. '(KOR).' Unsure if this needs to be removed.
 - Haven't separated Dam's sire name from the year, this is the last field before race data so it is tricky.
+
+# Documentation (or, a poor excuse for one):
+The current script runs through the entire PDF matching a regular expression (regex) to each foal entry. The regex is long and complicated, but it (kind of) works.
+```python
+    pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
+```
+![Alt text](image.png) Explanation from Regex101
