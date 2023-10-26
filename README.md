@@ -48,4 +48,4 @@ The current script runs through the entire PDF matching a regular expression (re
 ```python
     pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
 ```
-![Alt text](image.png) Explanation from Regex101
+![Alt text](regex101.png) Explanation from Regex101
