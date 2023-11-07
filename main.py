@@ -50,7 +50,7 @@ pattern = re.compile(r'''
 pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
 
 
-def extract_body_text(input_path : str, y_margin) -> str:
+def extract_body_text(input_path) -> str:
     reader = PdfReader(input_path)
     parts = []
 
@@ -59,7 +59,7 @@ def extract_body_text(input_path : str, y_margin) -> str:
     # TODO: doesn't remove the 'Bay Horse; Mar 29 1994' subtitle
     def visitor_body(text, cm, tm, fontDict, fontSize):
         y = tm[5]
-        if y > y_margin and y < 720: ## so many magic numbers, changed from 50-55 to remove 'Bay Horse' Subheader
+        if y > 50 and y < 720:
             parts.append(text)
     
     for page in reader.pages[1:336]:
@@ -83,16 +83,28 @@ def convert_file(filename : str) -> None:
 
     reader = PdfReader(input_path)
 
+    print("Reading " + filename + "...")
+    text = extract_body_text(input_path)
+    print("Extracting data...")
+    text = remove_lines_with_text(text, "Bay Horse; Mar 29, 1994")
     foals = []
-    print("Reading " + filename)
-    for page in reader.pages[1:336]:
-        matches = re.findall(pattern, page.extract_text())
+    matches = re.findall(pattern, text)
 
-        for match in matches:
-            name, birthday, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year = match
-            foals.append(Foal(name, birthday, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year))
+    for match in matches:
+        name, birthday, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year = match
+        foals.append(Foal(
+            name,
+            birthday,
+            sex,
+            dam,
+            dam_year,
+            dam_spr,
+            dam_cpi,
+            dam_sire,
+            dam_sire_year))
 
     print("Writing file to \'%s\'" % (output_path))
+    # TODO: give information on file dif?
     file = open('output/output.csv', 'w', newline='')
     writer = csv.writer(file)
     for foal in foals:
