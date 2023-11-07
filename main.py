@@ -18,8 +18,57 @@ def convert_file(filename : str) -> None:
     reader = PdfReader("input/AwesomeAgain.pdf")
     # if you're wondering how i did this, i don't know either. regex is wizard shit.
     #pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+))?'
-    # todo: add dam_sire_year to regex, need to figure out the country code + year thing
-    pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
+    
+    
+
+# todo: add dam_sire_year to regex, need to figure out the country code + year thing
+# create full list of potential names and patterns and such
+pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
+pattern = re.compile(r'''
+    (                # Group 1: Name
+    (?!=)            # Ensure there's no newline or backslash before this part
+    [\w\s^\n\\]      # Match up to 23 characters that are word characters, whitespace, and 
+    {1,23}           #      not newline or backslash 
+    ),\              # Match a comma and a space
+
+    (                # Group 2: DOB (2000/03/11)
+    [^,]+            # Match one or more characters that are not a comma
+    ),\              # Match a comma and a space
+
+    (                # Group 3: Color * (b, w, brown? idk it's not used)
+    [\w\s\/]         # Match word characters, whitespace, and slashes
+    \ )?              # This part is optional.
+
+    (                # Group 4: Gender (colt, gelding, or filly)
+    colt|gelding|filly
+    )                
+
+    \ --\            # Match two hyphens and surrounding spaces
+                    
+    (                # Group 5: Dam Name 
+    [^\(]+
+    )                # Wedged between '---' and the '()' from year or SPR (ERROR CAUSED BY COUNTRY CODES)
+
+    \(               # Match an open parenthesis
+    (\d+)            # Group 6: Dam Year
+    \)               # Match a closing parenthesis
+
+    (?:              # Start a non-capturing group
+    \s               # Match a space
+    (                # Group 7: Dam SPR (optional)
+    [^\n\\]{1,23}    # Match up to 23 characters that are not newline or backslash
+    )
+    )?               # This part is optional
+    ''', re.VERBOSE)
+
+# Test the pattern
+text = "Example input here"
+match = pattern.match(text)
+if match:
+    print("Valid match")
+else:
+    print("No match")
+
    
     foals = []
     print("Reading " + filename)
