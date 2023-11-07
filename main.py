@@ -7,23 +7,6 @@ from foal import Foal
 
 input_folder = "input"
 output_folder = "output"
-
-
-        
-
-def convert_file(filename : str) -> None:
-    input_path = os.path.join(input_folder, filename)
-    output_path = os.path.join(output_folder, filename)
-
-    reader = PdfReader("input/AwesomeAgain.pdf")
-    # if you're wondering how i did this, i don't know either. regex is wizard shit.
-    #pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+))?'
-    
-    
-
-# todo: add dam_sire_year to regex, need to figure out the country code + year thing
-# create full list of potential names and patterns and such
-pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
 pattern = re.compile(r'''
     (                # Group 1: Name
     (?!=)            # Ensure there's no newline or backslash before this part
@@ -59,17 +42,17 @@ pattern = re.compile(r'''
     [^\n\\]{1,23}    # Match up to 23 characters that are not newline or backslash
     )
     )?               # This part is optional
+    \s               # Newline character
     ''', re.VERBOSE)
 
-# Test the pattern
-text = "Example input here"
-match = pattern.match(text)
-if match:
-    print("Valid match")
-else:
-    print("No match")
+def convert_file(filename : str) -> None:
+    input_path = os.path.join(input_folder, filename)
+    output_path = os.path.join(output_folder, filename)
 
-   
+    reader = PdfReader("input/AwesomeAgain.pdf")
+    # if you're wondering how i did this, i don't know either. regex is wizard shit.
+    #pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+))?
+    pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
     foals = []
     print("Reading " + filename)
     for page in reader.pages[1:336]:

@@ -35,3 +35,13 @@ Awesome for Sure, 2000/04/30, ch filly -- Woodsy Meadow (1995) (SPR=86; CPI=2.2)
 Meadowlake (1983)
 (SPR=62; CPI=0.8)
 ```
+
+```
+Hotstufanthensome, 2000/01/30, b gelding -- Don't Read My Lips (1991) (SPR=92; CPI=5.8)
+equineline.com Product 33P
+Awesome Again 09/14/23 16:11:36 EDT
+Bay Horse; Mar 29, 1994
+Copyright © 2023 The Jockey Club Information Systems, Inc. Page 13 of 336
+Turkoman (1982)
+(SPR=94; CPI=9.2)
+```
