@@ -1,12 +1,15 @@
 import re
 import csv
 import os
+import sys
 from PyPDF2 import PdfReader
 
 from foal import Foal
 
 input_folder = "input"
 output_folder = "output"
+ # if you're wondering how i did this, i don't know either. regex is wizard shit.
+#pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+))?
 pattern = re.compile(r'''
     (                # Group 1: Name
     (?!=)            # Ensure there's no newline or backslash before this part
@@ -44,15 +47,34 @@ pattern = re.compile(r'''
     )?               # This part is optional
     \s               # Newline character
     ''', re.VERBOSE)
+pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
+
+
+def extract_body_text(input_path : str) -> str:
+    reader = PdfReader(input_path)
+    parts = []
+    page = reader.pages[3]
+
+    # This 'visitor function' is passed in to extract_text(), and should take out any headers.
+    # https://pypdf2.readthedocs.io/en/3.0.0/user/extract-text.html
+    def visitor_body(text, cm, tm, fontDict, fontSize):
+        y = tm[5]
+        if y > 50 and y < 720:
+            parts.append(text)
+    
+    for page in reader.pages[1:336]:
+        page.extract_text(visitor_text=visitor_body) # we don't actually use this return value?
+
+    text_body = "".join(parts)
+    return text_body
+
 
 def convert_file(filename : str) -> None:
     input_path = os.path.join(input_folder, filename)
     output_path = os.path.join(output_folder, filename)
 
-    reader = PdfReader("input/AwesomeAgain.pdf")
-    # if you're wondering how i did this, i don't know either. regex is wizard shit.
-    #pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+))?
-    pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
+    reader = PdfReader(input_path)
+
     foals = []
     print("Reading " + filename)
     for page in reader.pages[1:336]:
@@ -72,14 +94,20 @@ def convert_file(filename : str) -> None:
     print("Written!")
 
 
+def print_pdf():
+    reader = PdfReader("input/AwesomeAgain.pdf")
+    text = ''
+    for page in reader.pages[1:336]:
+        text += ('\n------------\n')
+
+
+
 def main():
     # get list of input pdf's
     input_files = os.listdir(input_folder)
     print("%d files found in \'%s\'" % (len(input_files), input_folder))
     for file in input_files:
         convert_file(file)
-
-    
 
 
 if __name__ == '__main__':
