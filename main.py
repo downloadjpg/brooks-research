@@ -50,16 +50,16 @@ pattern = re.compile(r'''
 pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
 
 
-def extract_body_text(input_path : str) -> str:
+def extract_body_text(input_path : str, y_margin) -> str:
     reader = PdfReader(input_path)
     parts = []
-    page = reader.pages[3]
 
     # This 'visitor function' is passed in to extract_text(), and should take out any headers.
     # https://pypdf2.readthedocs.io/en/3.0.0/user/extract-text.html
+    # TODO: doesn't remove the 'Bay Horse; Mar 29 1994' subtitle
     def visitor_body(text, cm, tm, fontDict, fontSize):
         y = tm[5]
-        if y > 50 and y < 720:
+        if y > y_margin and y < 720: ## so many magic numbers, changed from 50-55 to remove 'Bay Horse' Subheader
             parts.append(text)
     
     for page in reader.pages[1:336]:
@@ -67,6 +67,14 @@ def extract_body_text(input_path : str) -> str:
 
     text_body = "".join(parts)
     return text_body
+
+
+def remove_lines_with_text(text, text_to_remove):
+    # TODO: optimize?
+    lines = text.split('\n')
+    cleaned_lines = (line for line in lines if line != text_to_remove)
+    cleaned_text = '\n'.join(cleaned_lines)
+    return cleaned_text
 
 
 def convert_file(filename : str) -> None:
@@ -94,11 +102,6 @@ def convert_file(filename : str) -> None:
     print("Written!")
 
 
-def print_pdf():
-    reader = PdfReader("input/AwesomeAgain.pdf")
-    text = ''
-    for page in reader.pages[1:336]:
-        text += ('\n------------\n')
 
 
 

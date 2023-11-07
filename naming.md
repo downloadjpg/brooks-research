@@ -45,3 +45,11 @@ Copyright © 2023 The Jockey Club Information Systems, Inc. Page 13 of 336
 Turkoman (1982)
 (SPR=94; CPI=9.2)
 ```
+
+```
+python
+import main
+with open('output/test.txt', 'w') as f:
+    f.write(main.extract_body_text("input/AwesomeAgain.pdf"))
+```
+
