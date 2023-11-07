@@ -53,3 +53,4 @@ with open('output/test.txt', 'w') as f:
     f.write(main.extract_body_text("input/AwesomeAgain.pdf"))
 ```
 
+Some names have asterisks on them??

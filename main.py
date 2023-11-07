@@ -13,8 +13,8 @@ output_folder = "output"
 pattern = re.compile(r'''
     (                # Group 1: Name
     (?!=)            # Ensure there's no newline or backslash before this part
-    [\w\s^\n\\]      # Match up to 23 characters that are word characters, whitespace, and 
-    {1,23}           #      not newline or backslash 
+    [^\n\\]          # Match up to 23 characters that are not newline or backslash  
+    {1,23}           #   
     ),\              # Match a comma and a space
 
     (                # Group 2: DOB (2000/03/11)
@@ -27,28 +27,35 @@ pattern = re.compile(r'''
 
     (                # Group 4: Gender (colt, gelding, or filly)
     colt|gelding|filly
-    )                
+    )            
 
     \ --\            # Match two hyphens and surrounding spaces
                     
     (                # Group 5: Dam Name 
     [^\(]+
-    )                # Wedged between '---' and the '()' from year or SPR (ERROR CAUSED BY COUNTRY CODES)
+    )\               # Wedged between '---' and the '()' from year or SPR (ERROR CAUSED BY COUNTRY CODES)
 
     \(               # Match an open parenthesis
     (\d+)            # Group 6: Dam Year
     \)               # Match a closing parenthesis
-
-    (?:              # Start a non-capturing group
+    
+    
+    (?:\             # Start a non-capturing group to let Dam SPR and CPI be optional, plus a space
+    \(SPR=(\d+);\    # Group 7: Dam SPR (optional)
+    CPI=(\d+\.\d+)\) # Group 8: Dam CPI (optional)
+    )?               
     \s               # Match a space
-    (                # Group 7: Dam SPR (optional)
+    (                # Group 9: Dam Sire Name
     [^\n\\]{1,23}    # Match up to 23 characters that are not newline or backslash
-    )
-    )?               # This part is optional
-    \s               # Newline character
+    )\              
+    
+    \(               # Match an open parenthesis
+    (\d+)            # Group 10: Dam Sire Year
+    \)               # Match a closing parenthesis
     ''', re.VERBOSE)
-pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
-
+pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})\((\d+)\)'
+# TODO: this somehow fell to 1,293
+# TODO: also the documented pattern still doesn't work
 
 def extract_body_text(input_path) -> str:
     reader = PdfReader(input_path)
@@ -91,7 +98,7 @@ def convert_file(filename : str) -> None:
     matches = re.findall(pattern, text)
 
     for match in matches:
-        name, birthday, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year = match
+        name, birthday, color, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year = match
         foals.append(Foal(
             name,
             birthday,
@@ -104,14 +111,16 @@ def convert_file(filename : str) -> None:
             dam_sire_year))
 
     print("Writing file to \'%s\'" % (output_path))
-    # TODO: give information on file dif?
+    # TODO: give information on file diff?
     file = open('output/output.csv', 'w', newline='')
     writer = csv.writer(file)
+    header = ['Name', 'Year', 'Sex', 'Dam Name', 'Dam Year', 'Dam SPR', 'Dam CPI', 'Dam Sire Name', 'Dam Sire Year']
+    writer.writerow(header)
     for foal in foals:
         row = [foal.name, foal.birthday, foal.sex, foal.dam, foal.dam_year, foal.dam_spr, foal.dam_cpi, foal.dam_sire, foal.dam_sire_year]
         writer.writerow(row)
     file.close()
-    print("Written!")
+    print("Done.")
 
 
 
