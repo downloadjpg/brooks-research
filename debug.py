@@ -10,3 +10,5 @@ def print_pdf(filename="input/AwesomeAgain.pdf"):
     text = ''
     for page in reader.pages[1:336]:
         text += ('\n------------\n')
+
+
