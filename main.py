@@ -6,6 +6,8 @@ from PyPDF2 import PdfReader
 
 from foal import Foal
 
+# There are 1,365 foals in AwesomeAgain.pdf
+
 input_folder = "input"
 output_folder = "output"
 pattern = re.compile(r'''
@@ -13,15 +15,37 @@ pattern = re.compile(r'''
     \ ([^,]+),                  # Foal birthday
     (\ [\w\s\/]+)?              # Foal color (optional)
     \ (colt|gelding|filly)\ --  # Foal sex
+    (?:                         # Anything below this can fail and still go through.
     \ ([^\(]+)                  # Dam name TODO: Add 1,23, country code?
     \ \((\d+)\)                 # Dam year
     (?:\ \(SPR=(\d+);           # Dam SPR (optional)
     \ CPI=(\d+\.\d+)\))?        # Dam CPI (optional)
     \s([^\n\\]{1,23})           # Dam sire name
-    \((\d+)\)                   # Dam sire year
+    \ \((\d+)\)                 # Dam sire year
+    \s
+    # TODO: died capture, 'stands in ___'
+    #(?:Died\ in\ [\d+]{4}\s)?
+    (?:[^\n()]*)?
+    \(SPR=(\d+);                # Foal SPR
+    \ CPI=(\d+\.\d+)\)          # Foal CPI
+    )?                          
     ''', re.VERBOSE)
 
 # TODO: this somehow fell to 1,293
+
+# Uses a less restrictive part of the regex to count all names.
+def count_names(input_path) -> int:
+    pattern = re.compile(r'''
+    ((?!=)[^\n\\]{1,23}),       # Foal name
+    \ ([^,]+),                  # Foal birthday
+    (\ [\w\s\/]+)?              # Foal color (optional)
+    \ (colt|gelding|filly)      # Sex
+    ''', re.VERBOSE)
+    text = extract_body_text(input_path)
+    text = remove_lines_with_text(text, "Bay Horse; Mar 29, 1994")
+    foals = []
+    matches = re.findall(pattern, text)
+    return len(matches)
 
 def extract_body_text(input_path) -> str:
     reader = PdfReader(input_path)
@@ -66,11 +90,13 @@ def convert_file(filename : str) -> None:
     matches = re.findall(pattern, text)
 
     for match in matches:
-        name, birthday, color, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year = match
+        name, birthday, color, sex, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year, spr, cpi = match
         foals.append(Foal(
             name,
             birthday,
             sex,
+            spr,
+            cpi,
             dam,
             dam_year,
             dam_spr,
@@ -82,10 +108,10 @@ def convert_file(filename : str) -> None:
     # TODO: give information on file diff?
     file = open(output_path, 'w', newline='')
     writer = csv.writer(file)
-    header = ['Name', 'Year', 'Sex', 'Dam Name', 'Dam Year', 'Dam SPR', 'Dam CPI', 'Dam Sire Name', 'Dam Sire Year']
+    header = ['Name', 'Year', 'Sex', 'SPR', 'CPI', 'Dam Name', 'Dam Year', 'Dam SPR', 'Dam CPI', 'Dam Sire Name', 'Dam Sire Year']
     writer.writerow(header)
     for foal in foals:
-        row = [foal.name, foal.birthday, foal.sex, foal.dam, foal.dam_year, foal.dam_spr, foal.dam_cpi, foal.dam_sire, foal.dam_sire_year]
+        row = [foal.name, foal.birthday, foal.sex, foal.spr, foal.cpi, foal.dam, foal.dam_year, foal.dam_spr, foal.dam_cpi, foal.dam_sire, foal.dam_sire_year]
         writer.writerow(row)
     file.close()
     print("Done.")
