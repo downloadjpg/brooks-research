@@ -1,7 +1,8 @@
 class Foal:
-    def __init__(self, name, birthday, sex, spr, cpi, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year):
+    def __init__(self, name, birthday, color, sex, spr, cpi, dam, dam_year, dam_spr, dam_cpi, dam_sire, dam_sire_year):
         self.name = name
         self.birthday = birthday
+        self.color = color
         self.sex = sex
         self.spr = spr
         self.cpi = cpi
