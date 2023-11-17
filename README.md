@@ -1,51 +1,36 @@
-## Hi! 
-This is a project to automate filtering horse statistics from a PDF format into a spreadsheet using some simple Python code.
 
-## Specifications:
-We are only sampling from horses with 3 or more starts.
+# Description
+This script imports all pdfs in the 'Input' folder, expecting them to be in the format from [equineline.com](https://equineline.com).
 
-### From each PDF we need:
-- the name of the foal
-- how many starts they had
-- the year they were born
-- sex
-- dam (mother) name
-- dam sire (if possible)
-- totals (how many win place and shows)
-- career length (in years?)
+## Current Status:
+The script will run for any number of pdf files, but I've only tested Awesome Again thoroughly. Outputs are regularly put in the Google Drive when I can :D
+### Catch rate
+Trying to capture every single foal, no matter the race count. Currently at **1,314** total rows for Awesome Again.
+This means approximately **5%** of entries are being lost, though I forget what the exact total count is.
+  
 
-![Diagram of PDF with circled fields.](diagrammed-data.bmp)
-
-
-# Current Status:
-- Trying to capture every single foal, no matter the race count. Currently at **1,314** total rows.
-- This means approximately **5%** of entries are being lost, though I forget what the exact total count is.
-
-## Fields captured: (! = known issue)
-- Name (!)
-- Birthday 
-- Sex 
-- Dam name
-- Dam year
-- Dam SPR 
-- Dam CPI
-- Dam's sire name (!) 
-- Dam's sire year (!)
-
-## Remaining tasks:
-- Calculate totals (need an exact definition of these, number of wins, places, and shows?)
-- Calculate career length
-- Get better capture percentage (ideally 100%!!)
-- Test with other PDF files
-- Export script into an executable file.
 
 ## Known Issues:
-- Many foals contain a country tag, e.g. '(KOR).' Unsure if this needs to be removed.
-- Haven't separated Dam's sire name from the year, this is the last field before race data so it is tricky.
+- Many foals contain a country tag, e.g. '(KOR).' This can cause problems down the line if other data sets do/do not contain it.
+  - Currently, it breaks a lot of entries as the pattern relies on the birth year being the only thing in parentheses.
+- Page breaks introduce many issues. Headers/footers are complicated, and my current method of filtering them out (scanner obj) is slowing everything down by a ton.
 
-# Documentation (or, a poor excuse for one):
-The current script runs through the entire PDF matching a regular expression (regex) to each foal entry. The regex is long and complicated, but it (kind of) works.
-```python
-    pattern = r'((?!=)[^\n\\]{1,23}), ([^,]+),( [\w\s\/]+)? (colt|gelding|filly) -- ([^\(]+) \((\d+)\)(?: \(SPR=(\d+); CPI=(\d+\.\d+)\))?\s([^\n\\]{1,23})'
-```
-![Alt text](regex101.png) Explanation from Regex101
+
+## Remaining tasks:
+- [ ] Export application
+	- [ ] Outputs
+		- [ ] Diffs
+		- [ ] Statistics
+			- [ ] Total catch rate
+			- [ ] Individual variable catch rates?
+		- [ ] PDF Text dumps
+	- [ ] Github Actions
+		- [ ] Export and compile to CLI tool, put download link in README.
+		- [ ] Rewrite README.
+- [ ] Debugging
+	- [ ] Page break issues
+	- [ ] Header/Subheader issues
+  
+- [ ] Optimize header/subheader removal
+	- [ ] Test regex vs Scanner object
+- [ ] Scores (sorry)
