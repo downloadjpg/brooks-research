@@ -1,7 +1,7 @@
 import re
 from pypdf import PdfReader
 
-from foal import Foal
+from scripts.foal import Foal
 import main
 
 def extract_body_text(input_path, pbar) -> str:

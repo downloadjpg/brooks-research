@@ -1,5 +1,5 @@
 import csv
-from foal import Foal
+from scripts.foal import Foal
 
 # Define the column information
 columns = [

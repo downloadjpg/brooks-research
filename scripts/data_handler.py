@@ -1,5 +1,5 @@
 import re
-from foal import Foal
+from scripts.foal import Foal
 
 pattern = re.compile(r'''
     ((?!=)[^\n\\]{1,23}),       # Foal name
