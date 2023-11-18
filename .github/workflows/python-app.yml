@@ -39,11 +39,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.SHA}}
-        release_name: ${{ github.SHA }}
+        tag_name: v0.1.0-${{ github.SHA}}
+        release_name: Release v0.1.0-${{ github.SHA }}
         overwrite: true
         body: |
-          Test Release v1.0.0
+          Test Release v0.1.0
         draft: false
         prerelease: false
     - name: Upload Release Asset
