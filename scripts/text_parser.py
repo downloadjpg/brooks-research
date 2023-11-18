@@ -1,5 +1,5 @@
 import re
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 from foal import Foal
 import main
