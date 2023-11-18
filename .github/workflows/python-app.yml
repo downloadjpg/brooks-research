@@ -36,11 +36,13 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+    - name: Print GITHUB_TOKEN
+      run: echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
     - name: create release
       id: create_release
       uses: actions/create-release@v1
       env:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.event.head_commit.message }}
         release_name: ${{ github.event.head_commit.message }}
@@ -53,7 +55,7 @@ jobs:
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
       env:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{steps.create_release.outputs.upload_url}}
         asset_path: dist/Horsifier.exe
